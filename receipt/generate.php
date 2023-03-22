@@ -1,9 +1,9 @@
 <?php
-$postadm = $_POST['admissionfee'];
-$postid = $_POST['postid'];
-$postexamfee = $_POST['postexamfee'];
-$postcompositefee = $_POST['postcompositefee'];
-$postcomputerfee = $_POST['postcomputerfee'];
+(int)$postadm = $_POST['admissionfee'];
+(int)$postid = $_POST['postid'];
+(int)$postexamfee = $_POST['postexamfee'];
+(int)$postcompositefee = $_POST['postcompositefee'];
+(int)$postcomputerfee = $_POST['postcomputerfee'];
 
 echo $postadm;
 echo $postid;

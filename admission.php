@@ -63,7 +63,7 @@ include('config.php');
             <label for="inputState" class="form-label">Van Route</label>
             <select name="route" id="inputState" class="form-select" required>
                 <option value="">-- Select Route --</option>
-                <option value="">NONE</option>
+                <option value="NONE">NONE</option>
                 <option value="BHUJWA-PANANHA">BHUJWA TOLA/ PANANHA</option>
                 <option value="KATAI">KATAI CHAURAHA</option>
                 <option value="AWADHPUR">AWADHPUR</option>

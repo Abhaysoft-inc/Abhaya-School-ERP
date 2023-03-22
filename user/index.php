@@ -2,6 +2,7 @@
 include('../includes/header.php');
 include('../config.php');
 $id = $_GET['id'];
+$getid = $_GET['id'];
 $sql = "SELECT id, name, father, mother, class, address, dob, route FROM students WHERE id = '$id'";
 $result = mysqli_query($conn, $sql);
 
@@ -11,37 +12,53 @@ if(!mysqli_num_rows($result)==1){
 }
 while($row = mysqli_fetch_assoc($result)){
     $feeclass = $row['class'];
+    $routename = $row['route'];
     echo '<h1 class="text-center my-4">'.$row['name'].'</h1><h5 class="text-center">ID: '.$row['id'].'</h5><h5 class="text-center">Class: '.$row['class'].'</h5><h5 class="text-center">Fathers Name: '.$row['father'].'</h5><h5 class="text-center">Address: '.$row['address'].' </h5>';
+
+    echo $routename;
+
 
     //echo " '".$feeclass."' ";
 
     $feesql = "SELECT * from classes WHERE class_name = '$feeclass'";
     $monthlyfee = mysqli_query($conn,$feesql);
 
+    $routesql = "select * from routes where route_name = '$routename'";
+    $vanfee = mysqli_query($conn, $routesql);
+
+}
+
+while($row = mysqli_fetch_assoc($vanfee) ){
+    $vanmonthly = $row['fee'];
+}
+
+
+//get the paid status of van fee
+
+$vanstatussql = "select * from van_fee where student_id = $id";
+$vanstatus = mysqli_query($conn,$vanstatussql);
+
+while($vanrow = mysqli_fetch_assoc($vanstatus)){
+    $janvan = $vanrow['janaury'];
+    $febvan = $vanrow['february'];
+    $marchvan = $vanrow['march'];
+    $aprilvan = $vanrow['april'];
+    $mayvan = $vanrow['may'];
+    $junevan = $vanrow['june'];
+    $julyvan = $vanrow['july'];
+    $augustvan = $vanrow['august'];
+    $septvan = $vanrow['september'];
+    $octvan = $vanrow['october'];
+    $novemvan = $vanrow['november'];
+    $decemvan = $vanrow['december'];
+
+    echo $janvan;
 }
 
 
 
+
 ?>
-
-
-
-
-
-
-<div class="container my-5">
-<h6 class="text-center">Total Fee: <div class="badge bg-primary text-wrap" style="width: 6rem;">
-  $5000
-</div></h6>
-<h6 class="text-center">Remaining Fee: <div class="badge bg-primary text-wrap" style="width: 6rem;">
-  $5000
-</div></h6>
-</div>
-
-<div class="container">
-<a href="collect.php?id=<?php echo $id; ?>" class="text-center btn btn-lg btn-success">Pay Fees</a>
-</div>
-
 
 
 
@@ -93,7 +110,39 @@ while($row = mysqli_fetch_assoc($monthlyfee)){
 
 }
 
+//agar route none hai to vanmonthly ko 0 set krdp na 
+
+$maxfee = (int)$monthly*12+(int)$vanmonthly*12+(int)$admfee+(int)$compositefee+(int)$idfee+(int)$examfee+(int)$computerfee;
+
+//$remaining = (int)$monthly+(int)$vanmonthly;
+
+//echo $remaining;
+$remainingsql = "SELECT SUM(total) FROM receipt WHERE student_id = '$id';";
+
+$remainingresult = mysqli_query($conn, $remainingsql);
+while($row = mysqli_fetch_array($remainingresult)){
+    $totalremain = $row[0];
+}
 ?>
+
+
+
+
+
+<div class="container my-5">
+<h6 class="text-center">Total Fee: <div class="badge bg-primary text-wrap" style="width: 6rem;">
+  <?php echo $maxfee;?>
+</div></h6>
+<h6 class="text-center">Remaining Fee: <div class="badge bg-primary text-wrap" style="width: 6rem;">
+  <?php if ($totalremain>0) {echo $maxfee-$totalremain;}else{echo 'Rs. 0';} ?>
+</div></h6>
+</div>
+
+<div class="container">
+<a href="collect.php?id=<?php echo $id; ?>" class="text-center btn btn-lg btn-success">Pay Fees</a>
+</div>
+
+
 <!-- other fees -->
 <div class="container my-5">
 
@@ -104,49 +153,41 @@ while($row = mysqli_fetch_assoc($monthlyfee)){
 
 
         <tr>
-            <th scope="col">HTML Checkbox</th>
+            
             <th scope="col">Fee Type</th>
             <th scope="col">Amount</th>
             <th scope="col">Status</th>
-            <th scope="col">Paid On</th>
         </tr>
         </thead>
         <tbody>
             <tr>
-                <th scope="row">1</th>
+                
                 <td>Admission Fee</td>
                 <td><?php echo $admfee;?></td>
                 <td><?php echo $adm;?></td>
-                <td><?php if ($adm == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
             </tr>
             <tr>
-                <th scope="row">2</th>
+                
                 <td>Digital ID Card Fee</td>
                 <td><?php echo $idfee;?></td>
                 <td><?php echo $idstatus;?></td>
-                <td><?php if ($idfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
+               
             </tr>
             <tr>
-                <th scope="row">2</th>
                 <td>Exam Fee</td>
                 <td><?php echo $examfee;?></td>
                 <td><?php echo $exam;?></td>
-                <td><?php if ($exam == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                </tr>
             <tr>
-                <th scope="row">3</th>
                 <td>Composite Fee</td>
                 <td><?php echo $compositefee;?></td>
                 <td><?php echo $composite;?></td>
-                <td><?php if ($composite == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                 </tr>
             <tr>
-                <th scope="row">4</th>
                 <td>Computer Fee</td>
                 <td><?php echo $computerfee;?></td>
                 <td><?php echo $computer;?></td>
-                <td><?php if ($computer == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                 </tr>
            
         </tbody>
     </table>
@@ -162,99 +203,80 @@ while($row = mysqli_fetch_assoc($monthlyfee)){
 
 
         <tr>
-            <th scope="col">Select</th>
+            
             <th scope="col">Month</th>
             <th scope="col">Amount</th>
             <th scope="col">Status</th>
-            <th scope="col">Paid on</th>
         </tr>
         </thead>
         <tbody>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
+                
                 <td>January</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $janfee; ?></td>
-                <td><?php if ($janfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                 </tr>
 
             <tr>
-                <td><input type="checkbox" name="feb" id=""></td>
+                
                 <td>Febuary</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $febfee; ?></td>
-                <td><?php if ($febfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
+                
                 <td>March</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $marchfee; ?></td>
-                <td><?php if ($marchfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>April</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $aprilfee; ?></td>
-                <td><?php if ($aprilfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>May</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $mayfee; ?></td>
-                <td><?php if ($mayfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>June</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $junefee; ?></td>
-                <td><?php if ($junefee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>July</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $julyfee; ?></td>
-                <td><?php if ($julyfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>August</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $augustfee; ?></td>
-                <td><?php if ($augustfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>September</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $septemberfee; ?></td>
-                <td><?php if ($septemberfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
+               
             </tr>
 
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>October</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $octoberfee; ?></td>
-                <td><?php if ($octoberfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>November</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $novermberfee; ?></td>
-                <td><?php if ($novermberfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
+                
             </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>December</td>
                 <td><?php echo $monthly;?></td>
                 <td><?php echo $decemberfee; ?></td>
-                <td><?php if ($decemberfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
+                
             </tr>
             
             
@@ -266,107 +288,88 @@ while($row = mysqli_fetch_assoc($monthlyfee)){
 
 <!-- Van Fee -->
 <div class="container my-5">
-    <h5 class="text-center">Data for filled, to be fetched from routesfee table</h5>
     <table class="table table-bordered border-primary my-2 caption-top">
-        <caption># Van Fees</caption>
+        <caption># Monthly Fees</caption>
 
 
 
         <tr>
-            <th scope="col">Select</th>
+            
             <th scope="col">Month</th>
             <th scope="col">Amount</th>
             <th scope="col">Status</th>
-            <th scope="col">Paid on</th>
         </tr>
         </thead>
         <tbody>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
+                
                 <td>January</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $janfee; ?></td>
-                <td><?php if ($janfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $janvan; ?></td>
+                 </tr>
 
             <tr>
-                <td><input type="checkbox" name="feb" id=""></td>
+                
                 <td>Febuary</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $febfee; ?></td>
-                <td><?php if ($febfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $febvan; ?></td>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
+                
                 <td>March</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $marchfee; ?></td>
-                <td><?php if ($marchfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $marchvan; ?></td>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>April</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $aprilfee; ?></td>
-                <td><?php if ($aprilfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $aprilvan; ?></td>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>May</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $mayfee; ?></td>
-                <td><?php if ($mayfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $mayvan; ?></td>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>June</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $junefee; ?></td>
-                <td><?php if ($junefee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $junevan; ?></td>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>July</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $julyfee; ?></td>
-                <td><?php if ($julyfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $julyvan; ?></td>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>August</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $augustfee; ?></td>
-                <td><?php if ($augustfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $augustvan; ?></td>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>September</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $septemberfee; ?></td>
-                <td><?php if ($septemberfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $septvan; ?></td>
+               
             </tr>
 
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>October</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $octoberfee; ?></td>
-                <td><?php if ($octoberfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
-            </tr>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $octvan; ?></td>
+                </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>November</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $novermberfee; ?></td>
-                <td><?php if ($novermberfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $novemvan; ?></td>
+                
             </tr>
             <tr>
-                <td><input type="checkbox" name="january" id=""></td>
                 <td>December</td>
-                <td><?php echo $monthly;?></td>
-                <td><?php echo $decemberfee; ?></td>
-                <td><?php if ($decemberfee == 'Unpaid') {echo 'Fee Not Paid';}else{echo 'Paid_On';}  ?></td>
+                <td><?php echo $vanmonthly;?></td>
+                <td><?php echo $decemvan; ?></td>
+                
             </tr>
+            
             
 
         </tbody>
